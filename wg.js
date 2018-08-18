@@ -30,6 +30,20 @@ class Wg {
     });
   }
 
+  async getPeers() {
+    let wg = this;
+    return new Promise(function (resolve, reject) {
+      execFile("wg", ["show", wg.iface, "allowed-ips"], function (error, stdout, stderr) {
+        if (error) { reject(error) }
+        resolve(stdout.toString('utf8').split('\n').filter(line => line.length > 16).map(peer => {
+          var pubkey = peer.split('\t')[0];
+          var ip = peer.split('\t')[1].split(' ')[0];
+          return { pubkey : pubkey, ip : ip };
+        }));
+      });
+    });
+  }
+
   async addConfig(configString) {
     let wg = this;
     return new Promise(function (resolve, reject) {
