@@ -29,7 +29,10 @@ function serve(host, port) {
   app.post('/join', function (req, res) {
     if (!req.body.invite || !req.body.pubkey) {
       res.status(400).send()
+    } else if (invites.indexOf(req.body.invite) < 0) {
+      res.status(403).send()
     } else {
+      invites.splice(invites.indexOf(req.body.invite), 1)
       console.log(`invite ${req.body.invite} redeemed by ${req.body.pubkey}`)
       res.status(204).send()
     }
