@@ -2,6 +2,7 @@ const http    = require('http')
 const parser  = require('body-parser')
 const crypto  = require('crypto')
 const express = require('express')
+const fetch   = require('node-fetch')
 
 const argv = require('minimist')(process.argv.slice(2))
 const cmd = argv._.length < 1 ? 'help' : argv._[0]
@@ -56,12 +57,17 @@ function serve(host, port) {
   })
 }
 
-if (cmd === 'serve' && host) {
-  serve(host, port)
-    .then(() => console.log('http up'))
-    .catch((err) => console.log(err))
-} else if (cmd === 'invite') {
-} else {
-  console.error('usage goes here')
-  process.exit(1)
-}
+(async function() {
+  if (cmd === 'serve' && host) {
+    serve(host, port)
+      .then(() => console.log('http up'))
+      .catch((err) => console.log(err))
+  } else if (cmd === 'invite') {
+    const res = await fetch(`http://localhost:${port}/invite`, { method : 'GET' })
+    const body = await res.text()
+    console.log(body)
+  } else {
+    console.error('usage goes here')
+    process.exit(1)
+  }
+})()
