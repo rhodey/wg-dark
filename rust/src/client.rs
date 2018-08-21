@@ -5,7 +5,8 @@
 extern crate pretty_env_logger;
 extern crate futures;
 extern crate hyper;
-extern crate hyper_tls;
+extern crate hyper_openssl;
+extern crate openssl;
 extern crate serde;
 extern crate serde_json;
 extern crate tokio;
@@ -16,8 +17,10 @@ mod wg;
 
 use failure::{Error, err_msg};
 use futures::{Stream, future::{Future, FutureResult}};
+use hyper::client::HttpConnector;
 use hyper::{Client, Request};
-use hyper_tls::HttpsConnector;
+use hyper_openssl::HttpsConnector;
+use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
 use structopt::StructOpt;
 use std::{time::{Duration, Instant}, process};
 use wg::Wg;
@@ -53,7 +56,15 @@ struct StatusResponse {
 fn request<J>(request: Request<hyper::Body>) -> impl Future<Item = J, Error = Error>
     where J: serde::de::DeserializeOwned
 {
-    let https = HttpsConnector::new(4).expect("TLS initialization failed");
+    let mut http = HttpConnector::new(4);
+    http.enforce_http(false);
+    let mut ssl = SslConnector::builder(SslMethod::tls()).unwrap();
+    ssl.set_verify_callback(SslVerifyMode::NONE, |pass, context| {
+        debug!("openssl passed tls verify? {}", pass);
+        pass
+    });
+    let https = HttpsConnector::with_connector(http, ssl).expect("TLS initialization failed");
+
     let client = Client::builder().build::<_, hyper::Body>(https);
 
     client.request(request)
