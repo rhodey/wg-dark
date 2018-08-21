@@ -103,7 +103,7 @@ fn main() {
             invite: code.to_string()
         };
 
-        let req = Request::post(format!("http://{}:{}/join", host, port))
+        let req = Request::post(format!("https://{}:{}/join", host, port))
             .header("User-Agent", "wg-dark")
             .header("Content-Type", "application/json")
             .body(serde_json::to_string(&join_request).unwrap().into())
