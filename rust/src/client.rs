@@ -6,6 +6,8 @@ extern crate pretty_env_logger;
 extern crate futures;
 extern crate hyper;
 extern crate hyper_tls;
+extern crate pnetlink;
+extern crate pnet_macros_support;
 extern crate serde;
 extern crate serde_json;
 extern crate tokio;
@@ -79,6 +81,12 @@ fn main() {
         std::env::set_var("RUST_LOG", "wg_dark=debug")
     }
     pretty_env_logger::init();
+
+    let wg = Wg::new("poop");
+    wg.add_link().unwrap();
+    wg.add_address("10.13.37.3/24").unwrap();
+    info!("added");
+    process::exit(0);
 
     let cmd = Cmd::from_args();
     let keypair = Wg::generate_keypair().unwrap();

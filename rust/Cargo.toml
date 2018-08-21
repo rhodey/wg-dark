@@ -24,6 +24,8 @@ failure = "0.1"
 tokio = "0.1"
 tokio-signal = "0.2"
 xdg = "2.1"
+pnetlink = "*"
+pnet_macros_support = "*"
 
 serde = "1.0"
 serde_json = "1.0"
